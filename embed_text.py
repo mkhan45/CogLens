@@ -1,9 +1,9 @@
 import re, string, math
 import numpy as np
 from collections import Counter
-from typing import List
+from typing import List, Dict
 
-def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
+def se_text(caption: str, glove: Dict, idf: np.ndarray, vocab: List[str]):
     """
     Returns an embedded representation for a string of text.
 
@@ -11,7 +11,7 @@ def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
     ----------
     caption: str
         The text that you want an embedding for.
-    glove:
+    glove: dict
         The loaded glove database.
     idf: np.array([])
         The vector of idfs for each caption in the database.

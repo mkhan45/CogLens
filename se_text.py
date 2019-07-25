@@ -2,20 +2,9 @@ import re, string, math
 import numpy as np
 from collections import Counter
 from gensim.models.keyedvectors import KeyedVectors as KV
+from typing import List
 
-with open("./dat/stopwords.txt", 'r') as r:
-    stops = []
-    for line in r:
-        stops += [i.strip() for i in line.split('\t')]
-
-all_captions = ["cat", "dog", "bird eating", "mouse", "mouse flying"]
-counters = to_counters(all_captions)
-vocab = to_vocab(counters, stop_words=stops)
-idf = to_idf(counters, vocab)
-embedding = se_text("dog", idf, vocab)
-print(embedding)
-
-def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
+def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
     """
     Returns an embedded representation for a string of text.
 
@@ -23,6 +12,8 @@ def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
     ----------
     caption: str
         The text that you want an embedding for.
+    glove:
+        The loaded glove database.
     idf: np.array([])
         The vector of idfs for each caption in the database.
     vocab: list(str)
@@ -33,13 +24,12 @@ def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
     np.array([])
         The embedded representation for the string passed in.
     """
-    glove50 = KV.load_word2vec_format('/Users/crystal/Desktop/python-workspace/CogWorks2019/glove.6B.50d.txt.w2v', binary=False)
 
     caption = strip_punc(caption).lower().split()
     embedding = np.zeros((1, 50))
 
     for word in caption:
-        word_idf = idf[vocab.index(word), vocab]
+        word_idf = idf[vocab.index(word)]
         embedding += glove50[word]*word_idf
 
     embedding = normalize(embedding/len(caption))
@@ -162,3 +152,17 @@ def strip_punc(corpus: str):
 
     punc_regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
     return punc_regex.sub("", corpus)
+
+with open("/Users/crystal/repositories/Student_Week3/bag_of_words/dat/stopwords.txt", 'r') as r:
+    stops = []
+    for line in r:
+        stops += [i.strip() for i in line.split('\t')]
+
+glove50 = KV.load_word2vec_format('/Users/crystal/Desktop/python-workspace/CogWorks2019/glove.6B.50d.txt.w2v', binary=False)
+
+all_captions = ["cat", "dog", "bird eating", "mouse", "mouse flying"]
+counters = to_counters(all_captions)
+vocab = to_vocab(counters, stop_words=stops)
+idf = to_idf(counters, vocab)
+embedding = se_text("mouse flying", glove50, idf, vocab)
+print(embedding)

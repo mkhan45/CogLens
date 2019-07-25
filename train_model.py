@@ -1,4 +1,3 @@
-%matplotlib notebook
 from collections import defaultdict
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -6,6 +5,8 @@ from urllib.request import urlopen
 import json
 import pickle
 import numpy as np
+from trainer import train
+from model import Model
 
 with open("captions_train2014.json", "r") as read_file:
     captions_train = json.load(read_file)
@@ -73,3 +74,15 @@ def create_triples(ids):
         caption = embed_dict[id][int(np.random.randint(5,10))]
         triples_list.append(caption, good_img, bad_img)
         return triples_list
+
+triples = create_triples(keys_array[0:10_000])
+
+from mynn.optimizers.Adam import Adam
+
+model = Model(512, 50)
+optim = Adam(model.parameters)
+train(triples, optim)
+
+filename = input("What should db file be named?\n")
+with open(filename, 'wb') as f:
+    pickle.dump(model, f, pickle.HIGHEST_PROTOCOL)

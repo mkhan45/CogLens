@@ -48,3 +48,5 @@ def train(model,
             optim.step()
 
             loss.null_gradients()
+
+        print(loss)

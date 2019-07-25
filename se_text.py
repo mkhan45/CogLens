@@ -3,6 +3,18 @@ import numpy as np
 from collections import Counter
 from gensim.models.keyedvectors import KeyedVectors as KV
 
+with open("./dat/stopwords.txt", 'r') as r:
+    stops = []
+    for line in r:
+        stops += [i.strip() for i in line.split('\t')]
+
+all_captions = ["cat", "dog", "bird eating", "mouse", "mouse flying"]
+counters = to_counters(all_captions)
+vocab = to_vocab(counters, stop_words=stops)
+idf = to_idf(counters, vocab)
+embedding = se_text("dog", idf, vocab)
+print(embedding)
+
 def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
     """
     Returns an embedded representation for a string of text.
@@ -27,7 +39,7 @@ def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
     embedding = np.zeros((1, 50))
 
     for word in caption:
-        word_idf = idf[vocab.index(word)]
+        word_idf = idf[vocab.index(word), vocab]
         embedding += glove50[word]*word_idf
 
     embedding = normalize(embedding/len(caption))
@@ -50,15 +62,18 @@ def normalize(vector):
     """
     return(vector/np.mean(vector) - 1)
 
-def to_idf(all_captions):
+def to_idf(counters, vocab):
     """ 
     Given the vocabulary, and the word-counts for each document, computes
     the inverse document frequency (IDF) for each term in the vocabulary.
     
     Parameters
     ----------
-    captions: Iterable(strings)
-        All captions in the database.
+    counters : Iterable[collections.Counter]
+        An iterable containing {word -> count} counters for respective
+        documents.
+    vocab: list(str)
+        A sorted list of all captions (vocab) in the database.
     
     Returns
     -------
@@ -69,17 +84,6 @@ def to_idf(all_captions):
         Where `N` is the number of documents, and `nt` is the number of 
         documents in which the term `t` occurs.
     """
-    counters = []
-    for caption in all_captions:
-        counters.append(Counter(strip_punc(caption).lower().split()))
-    
-    with open("./dat/stopwords.txt", 'r') as r:
-        stops = []
-        for line in r:
-            stops += [i.strip() for i in line.split('\t')]
-
-    vocab = to_vocab(counters, k=None, stop_words=stops)
-
     idf = list()
     total_counter = Counter()
     for counter in counters:
@@ -124,7 +128,27 @@ def to_vocab(counters, k=None, stop_words=None):
         
     return sorted(vocab_set)
 
-def strip_punc(corpus):
+def to_counters(all_captions):
+    """
+    Creates a count of each word in the captions.
+
+    Parameters
+    ----------
+    captions: Iterable(strings)
+        All captions in the database.
+
+    Returns
+    -------
+    counters : Iterable[collections.Counter]
+        An iterable containing {word -> count} counters for respective
+        documents.
+    """
+    counters = []
+    for caption in all_captions:
+        counters.append(Counter(strip_punc(caption).lower().split()))
+    return counters
+
+def strip_punc(corpus: str):
     """ Removes all punctuation from a string.
 
         Parameters

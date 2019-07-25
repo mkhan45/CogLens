@@ -12,6 +12,12 @@ __pycache__/
 # idea
 idea/
 
+#glove data
+*.w2v
+
+#coco data
+*.json
+
 # Distribution / packaging
 .Python
 build/

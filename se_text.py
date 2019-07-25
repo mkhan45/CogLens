@@ -3,17 +3,19 @@ import numpy as np
 from collections import Counter
 from gensim.models.keyedvectors import KeyedVectors as KV
 
-def se_text(caption: str, all_captions: list(str)):
+def se_text(caption: str, idf: np.ndarray, vocab: list(str)):
     """
     Returns an embedded representation for a string of text.
 
     Parameters
     ----------
-    caption: String
+    caption: str
         The text that you want an embedding for.
-    all_captions: list(str)
-        All the captions in the database.
-    
+    idf: np.array([])
+        The vector of idfs for each caption in the database.
+    vocab: list(str)
+        A list of all captions (vocab) in the database, sorted alphabetically. (use to_vocab() for this)
+
     Returns
     -------
     np.array([])
@@ -25,8 +27,9 @@ def se_text(caption: str, all_captions: list(str)):
     embedding = np.zeros((1, 50))
 
     for word in caption:
-        embedding += glove50[word]*to_idf(all_captions)
-        
+        word_idf = idf[vocab.index(word)]
+        embedding += glove50[word]*word_idf
+
     embedding = normalize(embedding/len(caption))
 
     return embedding
@@ -99,6 +102,11 @@ def to_vocab(counters, k=None, stop_words=None):
     
     stop_words : Optional[Collection[str]]
         A collection of words to be ignored when populating the vocabulary
+
+    Returns
+    -------
+    List
+        A list of all unique words in the counter, sorted alphabetically.
     """
     vocab_set = set()
     if stop_words is None:

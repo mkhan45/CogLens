@@ -50,7 +50,7 @@ def normalize(vector):
         The normalized vector.
     """
     positive = vector-np.min(vector)
-    return(positive + np.max(positive))
+    return(positive/np.max(positive))
 
 def to_idf(counters, vocab):
     """ 

@@ -10,12 +10,12 @@ with open("stopwords.txt", 'r') as r: #stop words
 
 glove50 = KV.load_word2vec_format('path/to/glove.w2v', binary=False) #glove embeddings
 
-coco_data = json.load('path/to/coco_data.json') #Dictionary
+coco_metadata = json.load('path/to/coco_metadata.json') #Dictionary
 
 print("Files loaded.")
 
 #Make an embedding
-all_captions = list(coco_data['annotations'][i]['caption'] for i in coco_data['annotations']) #list of captions
+all_captions = list(coco_metadata['annotations'][i]['caption'] for i in coco_metadata['annotations']) #list of captions
 counters = et.to_counters(all_captions)
 vocab = et.to_vocab(counters, stop_words=stops)
 idf = et.to_idf(counters, vocab)

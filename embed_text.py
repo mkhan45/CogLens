@@ -52,7 +52,7 @@ def normalize(vector):
     positive = vector-np.min(vector)
     return(positive/np.max(positive))
 
-def to_idf(counters, vocab):
+def to_idf(all_captions, vocab):
     """ 
     Given the vocabulary, and the word-counts for each document, computes
     the inverse document frequency (IDF) for each term in the vocabulary.
@@ -76,10 +76,12 @@ def to_idf(counters, vocab):
     """
     idf = list()
     total_counter = Counter()
-    for counter in counters:
-        total_counter.update(set(counter)) #makes sure there's only one of each word per doc at most
+
+    for caption in all_captions:
+        caption = strip_punc(caption).lower().split()
+        total_counter.update(set(caption)) #makes sure there's only one of each word per doc at most
     for word in vocab:
-        idf.append(math.log(len(counters)/total_counter[word], 10))
+        idf.append(math.log(len(all_captions)/total_counter[word], 10))
     return np.array(idf)
 
 def to_vocab(counters, k=None, stop_words=None):

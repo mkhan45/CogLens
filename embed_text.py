@@ -1,9 +1,9 @@
 import re, string, math
 import numpy as np
 from collections import Counter
-from typing import List
+from typing import List, Dict
 
-def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
+def se_text(caption: str, glove: Dict, idf: np.ndarray, vocab: List[str]):
     """
     Returns an embedded representation for a string of text.
 
@@ -11,7 +11,7 @@ def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
     ----------
     caption: str
         The text that you want an embedding for.
-    glove:
+    glove: dict
         The loaded glove database.
     idf: np.array([])
         The vector of idfs for each caption in the database.
@@ -53,7 +53,7 @@ def normalize(vector):
     positive = vector-np.min(vector)
     return(positive/np.max(positive))
 
-def to_idf(counters, vocab):
+def to_idf(all_captions, vocab):
     """ 
     Given the vocabulary, and the word-counts for each document, computes
     the inverse document frequency (IDF) for each term in the vocabulary.
@@ -77,10 +77,12 @@ def to_idf(counters, vocab):
     """
     idf = list()
     total_counter = Counter()
-    for counter in counters:
-        total_counter.update(set(counter)) #makes sure there's only one of each word per doc at most
+
+    for caption in all_captions:
+        caption = strip_punc(caption).lower().split()
+        total_counter.update(set(caption)) #makes sure there's only one of each word per doc at most
     for word in vocab:
-        idf.append(math.log(len(counters)/total_counter[word], 10))
+        idf.append(math.log(len(all_captions)/total_counter[word], 10))
     return np.array(idf)
 
 def to_vocab(counters, k=None, stop_words=None):

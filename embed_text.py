@@ -28,8 +28,9 @@ def se_text(caption: str, glove, idf: np.ndarray, vocab: List[str]):
     embedding = np.zeros((1, 50))
 
     for word in caption:
-        word_idf = idf[vocab.index(word)]
-        embedding += glove[word]*word_idf
+        if word in vocab and word in glove:
+            word_idf = idf[vocab.index(word)]
+            embedding += glove[word]*word_idf
 
     embedding = normalize(embedding/len(caption))
 

@@ -49,7 +49,8 @@ def normalize(vector):
     np.array([])
         The normalized vector.
     """
-    return(vector/np.mean(vector) - 1)
+    positive = vector-np.min(vector)
+    return(positive + np.max(positive))
 
 def to_idf(counters, vocab):
     """ 

@@ -2,6 +2,7 @@ from gensim.models.keyedvectors import KeyedVectors as KV
 import embed_text as et
 import json
 from model import Model
+from train_model_dummy import find_matches
 
 #Load files
 with open('/Users/crystal/repositories/CogLens/stopwords.txt', 'r') as r: #stop words
@@ -24,4 +25,8 @@ def search(user_input):
     vocab = et.to_vocab(counters, stop_words=stops)
     idf = et.to_idf(all_captions, vocab)
     embedding = et.se_text(user_input, glove50, idf, vocab) #change "from Flask" to whatever caption
-    return embedding
+    img_ids = find_matches(embedding)
+
+    urls = list(j['coco_url'] for j in coco_metadata['images'] if j['id'] in img_ids)
+
+    return urls

@@ -1,4 +1,4 @@
-fom collections import defaultdict
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from pathlib import Path
 from urllib.request import urlopen
@@ -7,11 +7,12 @@ import pickle
 import numpy as np
 from trainer import train
 from model import Model
+import mygrad as mg
 
-with open("captions_train2014.json", "r") as read_file:
+with open("/Users/crystal/Desktop/python-workspace/CogWorks2019/captions_train2014.json", "r") as read_file:
     captions_train = json.load(read_file)
     
-with open("resnet18_features.pkl", "rb") as read_file:
+with open('/Users/crystal/Desktop/python-workspace/CogWorks2019/resnet18_features.pkl', "rb") as read_file:
     images_dict = pickle.load(read_file)
 
 keys_array = np.array(images_dict.keys())
@@ -45,7 +46,7 @@ def find_matches(embedding):
     with open("keys_array.pkl", "rb") as read_file:
         keys_array = pickle.load(read_file)
     
-    modelled_images = np.load(modelled_images.npy)
+    modelled_images = np.load('modelled_images.npy')
     dists = mg.einsum("ij,ij -> i", modelled_images, embedding)
     return keys_array[dists>0.7].flatten()
   
@@ -84,7 +85,7 @@ def create_triples(ids):
         triples_list.append(caption, good_img, bad_img)
     return triples_list
 
-triples = create_triples(keys_array[0:10_000])
+triples = create_triples(keys_array[0:10000])
 
 from mynn.optimizers.Adam import Adam
 

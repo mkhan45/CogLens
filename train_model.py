@@ -1,4 +1,4 @@
-from collections import defaultdict
+fom collections import defaultdict
 import matplotlib.pyplot as plt
 from pathlib import Path
 from urllib.request import urlopen
@@ -27,20 +27,28 @@ for annotation in captions_train['annotations']:
         captions_dict[annotation['image_id']].append(annotation)
         captions_list.append(annotation['caption'])
         
-def find_matches(query):
+        
+        
+def find_matches(embedding):
     '''
     Parameters:
     --------------------------------
     query: string
+    
+    
     
     Returns
     --------------------------------
     id_list: List[int]
     List of IDs for Images that match the given query
     '''
+    with open("keys_array.pkl", "rb") as read_file:
+        keys_array = pickle.load(read_file)
     
-    
-    
+    modelled_images = np.load(modelled_images.npy)
+    dists = mg.einsum("ij,ij -> i", modelled_images, embedding)
+    return keys_array[dists>0.7].flatten()
+  
 def display_image(ids):
     '''
     Parameters:
@@ -51,8 +59,9 @@ def display_image(ids):
     --------------------------------
     Matploblib of Matching Image Results
     '''
-    n = np.ceil(np.sqrt(len(ids)))
+    n = np.ceil(np.sqrt(ids.shape[0]))
     fig, axes = plt.subplots(nrows = n, ncols = n)
+    j = np.ceil((ids.shape[0])/n)
     for i in range(n):
         for j in range(n):
             id = ids[i*n+j]
@@ -67,7 +76,7 @@ def create_triples(ids):
         good_img = images_dict[id]
         n = np.random.choice(keys_array)
         while n==id:
-            n = np.random.randint()
+            n = np.random.random.choice(keys_array)
         good_img = images_dict[id]
         bad_img = images_dict[n]
         #replace embed_dict with what dictionary contains embeddings for captions

@@ -2,6 +2,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from typing import List, Tuple
 import mygrad as mg
+from noggin import create_plot
+
+from mygrad.nnet import margin_ranking_loss
 
 from embed_text import se_text
 
@@ -13,6 +16,7 @@ def unzip(pairs):
     """
     return tuple(zip(*pairs))
 
+
 def train(model, 
         triples: List[Tuple[np.ndarray, np.ndarray, np.ndarray]], #caption embeds, good_images, bad_images
         optim,
@@ -20,28 +24,34 @@ def train(model,
         epoch_cnt: int = 1000,
         margin: float = 0.1):
 
+    plotter, fig, ax = create_plot(metrics=["loss"])
+
     for epoch in range(epoch_cnt):
         idxs = np.arange(len(triples))
         np.random.shuffle(idxs)
 
+        query_embeds, good_images, bad_images = unzip(triples)
+        query_embeds, good_images, bad_images = np.array(query_embeds), np.array(good_images), np.array(bad_images)
 
         for batch_cnt in range(0, len(triples)//batch_size):
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
-            batch: List[Tuple[str, np.ndarray, np.ndarray]] = triples[batch_indices]
 
-            query_embeds, good_images, bad_images = unzip(batch)
+            batch_query = query_embeds[batch_indices]
+            good_batch = good_images[batch_indices]
+            bad_batch = bad_images[batch_indices]
 
-            good_image_encode: np.ndarray = model(good_images)
-            bad_image_encode: np.ndarray = model(bad_images)
 
-            good_image_encode /= np.linalg.norm(good_image_encode, axis=1)
-            bad_image_encode /= np.linalg.norm(bad_image_encode, axis=1)
-            query_embeds /= np.linalg.norm(query_embeds , axis=1)
+            good_image_encode: mg.Tensor = model(good_batch)
+            bad_image_encode: mg.Tensor = model(bad_batch)
 
-            good_dists = np.einsum("ij,ij -> i", good_image_encode, query_embeds)
-            bad_dists = np.einsum("ij,ij -> i", bad_image_encode, query_embeds)
+            good_image_encode /= mg.sqrt(mg.sum(good_image_encode**2, axis=1))
+            bad_image_encode /= mg.sqrt(mg.sum(bad_image_encode**2, axis=1))
+            query_embeds /= mg.sqrt(mg.sum(query_embeds**2, axis=1))
 
-            loss: mg.Tensor = np.max(0, margin - (good_dists - bad_dists))
+            good_dists = mg.einsum("ij,ij -> i", good_image_encode, query_embeds)
+            bad_dists = mg.einsum("ij,ij -> i", bad_image_encode, query_embeds)
+
+            loss: mg.Tensor = margin_ranking_loss(good_dists, bad_dists, 1, margin=margin)
 
             loss.backward()
 
@@ -49,4 +59,6 @@ def train(model,
 
             loss.null_gradients()
 
-        print(loss)
+            plotter.set_train_batch({"loss", loss.item()}, batch_size=batch_size)
+
+        plotter.set_test_epoch()

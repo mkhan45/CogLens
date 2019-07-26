@@ -18,7 +18,8 @@ print("Files loaded.")
 
 def search(user_input):
     #Make an embedding
-    all_captions = list(coco_metadata['annotations'][i]['caption'] for i in coco_metadata['annotations']) #list of captions
+    all_captions = list(i["caption"] for i in coco_metadata['annotations']) #list of captions
+    print('captions loaded')
     counters = et.to_counters(all_captions)
     vocab = et.to_vocab(counters, stop_words=stops)
     idf = et.to_idf(all_captions, vocab)

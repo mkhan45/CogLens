@@ -23,5 +23,5 @@ def search(user_input):
     counters = et.to_counters(all_captions)
     vocab = et.to_vocab(counters, stop_words=stops)
     idf = et.to_idf(all_captions, vocab)
-    embedding = et.se_text(input, glove50, idf, vocab) #change "from Flask" to whatever caption
+    embedding = et.se_text(user_input, glove50, idf, vocab) #change "from Flask" to whatever caption
     return embedding

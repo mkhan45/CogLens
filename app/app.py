@@ -16,14 +16,19 @@ def submit():
         user_input = request.args["bar"]
         urls = search(str(user_input))
     return render_template('website.html',
-    image_url0=urls[0],
-    image_url1=urls[1],
-    image_url2=urls[2],
-    image_url3=urls[3],
-    image_url4=urls[4],
-    image_url5=urls[5],
-    image_url6=urls[6],
-    image_url7=urls[7])
+    image_url0=assign_if_exist(0, urls),
+    image_url1=assign_if_exist(1, urls),
+    image_url2=assign_if_exist(2, urls),
+    image_url3=assign_if_exist(3, urls),
+    image_url4=assign_if_exist(4, urls),
+    image_url5=assign_if_exist(5, urls),
+    image_url6=assign_if_exist(6, urls),
+    image_url7=assign_if_exist(7, urls))
+
+def assign_if_exist(ind:0, urls:list):
+    if ind < len(urls):
+        return urls[ind]
+    return 'https://cdn.pixabay.com/photo/2015/12/22/04/00/photo-1103595_640.png'
 
 app.run(debug=True)
 

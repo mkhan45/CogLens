@@ -33,6 +33,7 @@ def se_text(caption: str, glove: Dict, idf: np.ndarray, vocab: List[str]):
             embedding += glove[word]*word_idf
 
     embedding = normalize(embedding/len(caption))
+    embedding /= np.linalg.norm(embedding)
 
     return embedding
 

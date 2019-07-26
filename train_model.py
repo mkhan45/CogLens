@@ -1,4 +1,4 @@
-from collections import defaultdict
+fom collections import defaultdict
 import matplotlib.pyplot as plt
 from pathlib import Path
 from urllib.request import urlopen

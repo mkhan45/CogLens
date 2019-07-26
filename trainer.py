@@ -1,4 +1,3 @@
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from typing import List, Tuple
 import mygrad as mg
@@ -20,11 +19,10 @@ def unzip(pairs):
 def train(model, 
         triples: List[Tuple[np.ndarray, np.ndarray, np.ndarray]], #caption embeds, good_images, bad_images
         optim,
-        batch_size: int = 15,
+        plotter,
+        batch_size: int = 150,
         epoch_cnt: int = 1000,
         margin: float = 0.1):
-
-    plotter, fig, ax = create_plot(metrics=["loss"])
 
     for epoch in range(epoch_cnt):
         idxs = np.arange(len(triples))
@@ -33,23 +31,39 @@ def train(model,
         query_embeds, good_images, bad_images = unzip(triples)
         query_embeds, good_images, bad_images = np.array(query_embeds), np.array(good_images), np.array(bad_images)
 
+        correct_list = []
+
         for batch_cnt in range(0, len(triples)//batch_size):
             batch_indices = idxs[batch_cnt*batch_size : (batch_cnt + 1)*batch_size]
 
-            batch_query = query_embeds[batch_indices]
-            good_batch = good_images[batch_indices]
-            bad_batch = bad_images[batch_indices]
+            batch_query = query_embeds[batch_indices].reshape(batch_size, 50)
+            good_batch = good_images[batch_indices].reshape(batch_size, 512)
+            bad_batch = bad_images[batch_indices].reshape(batch_size, 512)
 
+            # print(batch_query.shape)
+            # print(good_batch.shape)
+            # print(bad_batch.shape)
+            # print("____")
 
             good_image_encode: mg.Tensor = model(good_batch)
             bad_image_encode: mg.Tensor = model(bad_batch)
 
-            good_image_encode /= mg.sqrt(mg.sum(good_image_encode**2, axis=1))
-            bad_image_encode /= mg.sqrt(mg.sum(bad_image_encode**2, axis=1))
-            query_embeds /= mg.sqrt(mg.sum(query_embeds**2, axis=1))
+            # print(good_image_encode.shape)
+            # print(bad_image_encode.shape)
+            # print("____")
 
-            good_dists = mg.einsum("ij,ij -> i", good_image_encode, query_embeds)
-            bad_dists = mg.einsum("ij,ij -> i", bad_image_encode, query_embeds)
+            good_image_encode /= mg.sqrt(mg.sum(good_image_encode**2, axis=1).reshape(batch_size, 1))
+            bad_image_encode /= mg.sqrt(mg.sum(bad_image_encode**2, axis=1).reshape(batch_size, 1))
+            batch_query /= mg.sqrt(mg.sum(batch_query**2, axis=1).reshape(batch_size, 1))
+
+            # print(good_image_encode.shape)
+            # print(bad_image_encode.shape)
+            # print(batch_query.shape)
+
+            good_dists = mg.einsum("ij,ij -> i", good_image_encode, batch_query)
+            bad_dists = mg.einsum("ij,ij -> i", bad_image_encode, batch_query)
+
+            correct_list.append(good_dists - bad_dists > margin)
 
             loss: mg.Tensor = margin_ranking_loss(good_dists, bad_dists, 1, margin=margin)
 
@@ -59,6 +73,6 @@ def train(model,
 
             loss.null_gradients()
 
-            plotter.set_train_batch({"loss", loss.item()}, batch_size=batch_size)
+            plotter.set_train_batch({"loss": loss.item(), "acc": np.mean(np.array(correct_list))}, batch_size=batch_size)
 
         plotter.set_test_epoch()

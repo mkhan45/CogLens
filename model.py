@@ -1,11 +1,11 @@
 from mynn.layers.dense import dense
-from mynn.initializers.glorot_normal import glorot_normal
+from mynn.initializers.normal import normal
 
 
 class Model:
     def __init__(self, dim_input, dim_output):
         """ Initialize the model. """
-        self.dense = dense(dim_input, dim_output, weight_initializer=glorot_normal)
+        self.layer = dense(dim_input, dim_output, weight_initializer=normal)
 
     def __call__(self, x):
         """ Performs a forward pass on the model.
@@ -17,11 +17,11 @@ class Model:
 
         Returns
         -------
-        preds : np.ndarray, shape=(dim_output)
+        preds : mg.Tensor, shape=(dim_output)
             The model's predictions.
         """
-        return self.dense(x)
+        return self.layer(x)
 
     @property
     def parameters(self):
-        return self.dense.parameters
+        return self.layer.parameters

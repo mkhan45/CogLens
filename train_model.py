@@ -73,7 +73,7 @@ def create_triples(ids):
         #replace embed_dict with what dictionary contains embeddings for captions
         caption = embed_dict[id][int(np.random.randint(0,5))]
         triples_list.append(caption, good_img, bad_img)
-        return triples_list
+    return triples_list
 
 triples = create_triples(keys_array[0:10_000])
 

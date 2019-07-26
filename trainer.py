@@ -3,6 +3,8 @@ import numpy as np
 from typing import List, Tuple
 import mygrad as mg
 
+from mygrad.losses.margin_ranking_loss import margin_ranking_loss
+
 from embed_text import se_text
 
 def unzip(pairs):
@@ -12,6 +14,7 @@ def unzip(pairs):
     Example: pairs = [("a", 1), ("b", 2), ...] --> (("a", "b", ...), (1, 2, ...))
     """
     return tuple(zip(*pairs))
+
 
 def train(model, 
         triples: List[Tuple[np.ndarray, np.ndarray, np.ndarray]], #caption embeds, good_images, bad_images
@@ -31,17 +34,17 @@ def train(model,
 
             query_embeds, good_images, bad_images = unzip(batch)
 
-            good_image_encode: np.ndarray = model(good_images)
-            bad_image_encode: np.ndarray = model(bad_images)
+            good_image_encode: mg.Tensor = model(good_images)
+            bad_image_encode: mg.Tensor = model(bad_images)
 
-            good_image_encode /= np.linalg.norm(good_image_encode, axis=1)
-            bad_image_encode /= np.linalg.norm(bad_image_encode, axis=1)
-            query_embeds /= np.linalg.norm(query_embeds , axis=1)
+            good_image_encode /= mg.sqrt(mg.sum(good_image_encode**2, axis=1))
+            bad_image_encode /= mg.sqrt(mg.sum(bad_image_encode**2, axis=1))
+            query_embeds /= mg.sqrt(mg.sum(query_embeds**2, axis=1))
 
-            good_dists = np.einsum("ij,ij -> i", good_image_encode, query_embeds)
-            bad_dists = np.einsum("ij,ij -> i", bad_image_encode, query_embeds)
+            good_dists = mg.einsum("ij,ij -> i", good_image_encode, query_embeds)
+            bad_dists = mg.einsum("ij,ij -> i", bad_image_encode, query_embeds)
 
-            loss: mg.Tensor = np.max(0, margin - (good_dists - bad_dists))
+            loss: mg.Tensor = margin_ranking_loss(good_dists, bad_dists, 1)
 
             loss.backward()
 

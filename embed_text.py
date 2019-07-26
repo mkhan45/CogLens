@@ -115,7 +115,7 @@ def to_vocab(counters, k=None, stop_words=None):
 
     if k is not None:
         total_counter = total_counter.most_common(k)
-        vocab_set.update(pair[0] for pair in total_counter)
+        vocab_set.update(word for word, count in total_counter)
     else:
         vocab_set.update(key for key in total_counter.keys())
         

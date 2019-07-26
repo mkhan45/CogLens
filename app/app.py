@@ -1,4 +1,9 @@
+import sys
 from flask import *
+
+sys.path.append('/Users/crystal/repositories/CogLens')
+print(sys.path)
+from main import search
 
 app = Flask(__name__)
 
@@ -10,7 +15,7 @@ def index():
 def submit():
     if request.method == "GET":
         input = request.args["bar"]
-        print(input)
+        search(str(input))
     return render_template('website.html')
 
 app.run(debug=True)

@@ -8,6 +8,6 @@ function search(event) {
         return_val = entry;
         entry = "";
         console.log(return_val);
-        return return_val
+        submit(return_val);
     }
 }

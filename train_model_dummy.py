@@ -22,5 +22,6 @@ def find_matches(embedding):
     dists = mg.einsum("ij,ij -> i", modelled_images, embedding)
     #dists = np.argsort(dists)[::-1]
     #dists = dists[:8]
-    print(dists)
+    for d in dists:
+        print(d)
     return keys_array[dists > 0.32].flatten()

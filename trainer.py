@@ -4,7 +4,7 @@ from typing import List, Tuple
 import mygrad as mg
 from noggin import create_plot
 
-from mygrad.nnet.margin_ranking_loss import margin_ranking_loss
+from mygrad.nnet import margin_ranking_loss
 
 from embed_text import se_text
 

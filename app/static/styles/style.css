@@ -10,9 +10,11 @@ body {
 #pickle {
     margin-top: 150px;
 }
+#bar {
+    height: 30px;
+    width: 300px;
+}
 .images {
     width: 320px; 
     height: 320px; 
 }
-
-

@@ -1,6 +1,7 @@
 from gensim.models.keyedvectors import KeyedVectors as KV
 import embed_text as et
 import json
+from model import Model
 
 #Load files
 with open('/Users/crystal/repositories/CogLens/stopwords.txt', 'r') as r: #stop words
@@ -19,5 +20,6 @@ all_captions = list(coco_metadata['annotations'][i]['caption'] for i in coco_met
 counters = et.to_counters(all_captions)
 vocab = et.to_vocab(counters, stop_words=stops)
 idf = et.to_idf(all_captions, vocab)
+embedding = et.se_text("from Flask", glove50, idf, vocab) #change "from Flask" to whatever caption
 
-#embedding = et.se_text("mouse flying", glove50, idf, vocab) #change "mouse flying" to whatever caption
+print(model(embedding))

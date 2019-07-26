@@ -4,7 +4,7 @@ from typing import List, Tuple
 import mygrad as mg
 from noggin import create_plot
 
-from mygrad.losses.margin_ranking_loss import margin_ranking_loss
+from mygrad.nnet.margin_ranking_loss import margin_ranking_loss
 
 from embed_text import se_text
 
@@ -51,7 +51,7 @@ def train(model,
             good_dists = mg.einsum("ij,ij -> i", good_image_encode, query_embeds)
             bad_dists = mg.einsum("ij,ij -> i", bad_image_encode, query_embeds)
 
-            loss: mg.Tensor = margin_ranking_loss(good_dists, bad_dists, 1)
+            loss: mg.Tensor = margin_ranking_loss(good_dists, bad_dists, 1, margin=margin)
 
             loss.backward()
 

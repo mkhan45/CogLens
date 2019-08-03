@@ -3,14 +3,34 @@ html {
 }
 
 body {
-    background: lightblue;
+    background: orange;
     color: #3b3b3d;
     text-align: center;
+}
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 200px;
+    background-color: lightgray;
+}
+.tab {
+    padding: 8px 8px 8px 8px;
+    margin: 5px 5px 5px 5px;
+}
+#ok_button {
+    visibility: visible;
+}
+#record {
+    visibility: hidden;
+}
+#result {
+    color: darkblue;
 }
 #pickle {
     margin-top: 150px;
 }
-#bar {
+#img_search_bar {
     height: 30px;
     width: 300px;
 }

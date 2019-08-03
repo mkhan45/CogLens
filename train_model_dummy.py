@@ -20,8 +20,4 @@ def find_matches(embedding):
     
     modelled_images = np.load('/Users/crystal/repositories/CogLens/modelled_images.npy')
     dists = mg.einsum("ij,ij -> i", modelled_images, embedding)
-    #dists = np.argsort(dists)[::-1]
-    #dists = dists[:8]
-    for d in dists:
-        print(d)
     return keys_array[dists > 0.32].flatten()

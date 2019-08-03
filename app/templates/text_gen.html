@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <link rel="stylesheet" type ="text/css" href="static/styles/style.css">
+        <link rel=icon href='https://img.icons8.com/metro/1600/search.png'>
+        <title> Song Recognition </title>
+    </head>
+    <body>
+        <div class='navbar'>
+            <ul>
+                <div class="tab">
+                    <form action='/goto_song'>
+                        <input id='song_tab' type="submit" value="Song Recognition"/>
+                    </form>
+                </div>
+                <div class="tab">
+                    <form action='/goto_search'>
+                        <input id='search_tab' type="submit" value="Image Search Engine"/>
+                    </form>
+                </div>
+                <div class="tab">
+                    <form action='/goto_text'>
+                        <input id='text_tab' type="submit" value="Text Generator"/>
+                    </form>
+                </div>
+            </ul>
+        </div>
+        <br></br>
+        <h2> How much text to generate? </h2>
+        <form action="/submit_num_words">
+            <input id="text_bar" name="bar" type="text" method="POST" action="/" placeholder="Number of words..."/>
+            <input id="button" type="submit"/>
+        </form>
+        <p>{{gen_text}}</p>
+    </body>
+</html>
